@@ -1,7 +1,10 @@
 import numpy as np
 import cv2
 
+# for faster Loops over matrices
+import cython
 
+@cython.boundscheck(False)
 def im2double(im):
     """
     Converts uint image (0-255) to double image (0.0-1.0) and generalizes
@@ -57,20 +60,35 @@ def convolution_2d(img, kernel):
 
 
 if __name__ == "__main__":
-
     # 1. load image in grayscale
-    # 2. convert image to 0-1 image (see im2double)
+    img = cv2.imread("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-01/Lenna.png",0)
 
+    # 2. convert image to 0-1 image (see im2double)
+    img_double = im2double(img)
 
     # image kernels
+    # https://www.youtube.com/watch?v=W7OpxFbrD84
     sobelmask_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
     sobelmask_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
     gk = make_gaussian(11)
 
+
+
     # 3 .use image kernels on normalized image
+    # python works faster with lists
+    img_double = img_double.tolist()
+    
+    length_img = len(img_double)
+    
+    for y in range(0,length_img):
+        for x in range(0,length_img):
+            img_double[x-1:x+1,y-1:y+1]
+            
+    grad_x = np.dot(sobelmask_x,img_double)
+    grad_y = sobelmask_y * img_double
 
     # 4. compute magnitude of gradients
-
+    grad = np.sqrt(sobelmask_x^2 + sobelmask_y^2)
     # Show resulting images
     cv2.imshow("sobel_x", sobel_x)
     cv2.imshow("sobel_y", sobel_y)
