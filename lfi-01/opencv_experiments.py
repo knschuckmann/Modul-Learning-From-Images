@@ -1,8 +1,62 @@
+"""
+Konstantin Schuckmann
+Experiments on OpenCV
+colorspace changing etc
+20.10.19
+"""
+
+"""
+There are more than 150 color spaces in OpenCV
+call function: cv2.cvtColor(input_image, flag)
+
+what are the flags 
+flags = [i for i in dir(cv2) if i.startswith('COLOR_')]
+print (flags)
+
+How to set Threashhold
+cv2.inRange(hsv, lower_blue, upper_blue)
+
+YUV is for analog colored TV
+LAB is the distance between colors 
+RGB Red Green Blue color density
+HSV similar to human recognition (Hue/Farbwert, saturation/ Farbsättingung, value/ Hellwert)
+
+Ozu Threshhold
+But consider a bimodal image (In simple words, bimodal image is an image 
+whose histogram has two peaks). For that image, we can approximately take 
+a value in the middle of those peaks as threshold value, right ? That is what
+Otsu binarization does. So in simple words, it automatically calculates a 
+threshold value from image histogram for a bimodal image. (For images which
+are not bimodal, binarization won’t be accurate.)
+
+Thershold 
+Gaussian
+cv2.adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst])
+
+Canny Edges
+1. It is a multi-stage algorithm and we will go through each stages.
+2. Noise Reduction
+   Since edge detection is susceptible to noise in the image, first step is to remove the noise in the image with a 5x5 Gaussian filter. We have already seen this in previous chapters.
+3. Finding Intensity Gradient of the Image
+4. Non-maximum Suppression
+5. Hysteresis Thresholding
+OpenCV puts all the above in single function, cv2.Canny(img, minVal, maxVal)
+
+"""
 import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
 mode = 0
+hsv_flag = False
+lab_flag = False
+yuv_flag = False
+
+gray_flag = False
+canny = False
+
+addapt_ozu_threashhold = False
+addapt_gaussian_threashhold = False
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -11,8 +65,24 @@ while(True):
     ch = cv2.waitKey(1) & 0xFF
     if ch == ord('1'):
         mode = 1
-    # ...
-
+    #Convert BGR to HSV
+    if ch == ord('h'):
+        hsv_flag = not hsv_flag
+    #Convert BGR to LABq
+    if ch == ord('l'):
+        lab_flag = not lab_flag
+        #Convert BGR to YUV
+    if ch == ord('y'):
+        yuv_flag = not yuv_flag
+    if ch == ord('b'):
+        gray_flag = not gray_flag
+    #b for Threshold the Scale needs to be grayscale
+    if ch == ord('t'):
+        addapt_ozu_threashhold = not addapt_ozu_threashhold
+    if ch == ord('g'):
+        addapt_gaussian_threashhold = not addapt_ozu_threashhold
+    if ch == ord('c'):
+        canny = not canny
     if ch == ord('q'):
         break
 
@@ -20,11 +90,26 @@ while(True):
         # just example code
         # your code should implement
         frame = cv2.GaussianBlur(frame, (5, 5), 0)
-
+    if hsv_flag == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+    if lab_flag == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2LAB)
+    if yuv_flag == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2YUV)
+    if gray_flag == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    if addapt_ozu_threashhold == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)   
+        # frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_OTSU,11,2)
+    if addapt_gaussian_threashhold == True:
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        # cv2.adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst])
+        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+    if canny == True:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.Canny(frame,100,200)
     # Display the resulting frame
     cv2.imshow('frame', frame)
-
-
 
 
 
