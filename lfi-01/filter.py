@@ -1,10 +1,7 @@
 import numpy as np
 import cv2
 
-# for faster Loops over matrices
-import cython
 
-@cython.boundscheck(False)
 def im2double(im):
     """
     Converts uint image (0-255) to double image (0.0-1.0) and generalizes
@@ -52,7 +49,18 @@ def convolution_2d(img, kernel):
     # Hint: you need the kernelsize
 
     offset = int(kernel.shape[0]/2)
+    # make an offset and replicate the very last element for offste times
+    img = cv2.copyMakeBorder(img, offset,offset,offset,offset, cv2.BORDER_REPLICATE )
+    
+    length_img = len(img)
+    
     newimg = np.zeros(img.shape)
+    
+    for y in range(offset,length_img-offset):
+        for x in range(0,length_img-offset):
+            grad_x = sum((kernel * img[y-offset:y+offset,x-offset:x+offset]).sum(axis = 0))
+            grad_y = sum((kernel.transpose() * img[y-offset:y+offset,x-offset:x+offset]).sum(axis = 0))
+            newig[y,x] = np.sqrt(grad_x**2 + grad_y**2)
 
     # YOUR CODE HERE
 
@@ -76,19 +84,13 @@ if __name__ == "__main__":
 
     # 3 .use image kernels on normalized image
     # python works faster with lists
-    img_double = img_double.tolist()
+    #img_double = img_double.tolist()
     
-    length_img = len(img_double)
+    #length_img = len(img_double)
     
-    for y in range(0,length_img):
-        for x in range(0,length_img):
-            img_double[x-1:x+1,y-1:y+1]
-            
-    grad_x = np.dot(sobelmask_x,img_double)
-    grad_y = sobelmask_y * img_double
-
     # 4. compute magnitude of gradients
-    grad = np.sqrt(sobelmask_x^2 + sobelmask_y^2)
+    convolution_2d(sobelmask_x,img)
+    
     # Show resulting images
     cv2.imshow("sobel_x", sobel_x)
     cv2.imshow("sobel_y", sobel_y)
