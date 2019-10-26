@@ -56,12 +56,13 @@ def convolution_2d(img, kernel):
     
     newimg = np.zeros(img.shape)
     
-    for y in range(offset,length_img-offset):
-        for x in range(0,length_img-offset):
-            grad_x = sum((kernel * img[y-offset:y+offset,x-offset:x+offset]).sum(axis = 0))
-            grad_y = sum((kernel.transpose() * img[y-offset:y+offset,x-offset:x+offset]).sum(axis = 0))
-            newig[y,x] = np.sqrt(grad_x**2 + grad_y**2)
-
+    for y in range(offset,length_img-offset-1):
+        for x in range(offset,length_img-offset-1):
+            grad_x = sum((kernel * img[y-offset:y+offset+1,x-offset:x+offset+1]).sum(axis = 0))
+            # grad_y = sum((kernel.transpose() * img[y-offset:y+offset+1,x-offset:x+offset+1]).sum(axis = 0))
+            #newimg[y,x] = np.sqrt(grad_x**2 + grad_y**2)
+            newimg[y,x] = grad_x
+            
     # YOUR CODE HERE
 
     return newimg
@@ -81,19 +82,26 @@ if __name__ == "__main__":
     gk = make_gaussian(11)
 
 
-
-    # 3 .use image kernels on normalized image
     # python works faster with lists
-    #img_double = img_double.tolist()
+    # img_double1 = img_double.tolist()
+    # 3 .use image kernels on normalized image
+    #sobel_x = convolution_2d(img_double, sobelmask_x)
+    #sobel_y = convolution_2d(img_double, sobelmask_y)
     
-    #length_img = len(img_double)
+    
     
     # 4. compute magnitude of gradients
-    convolution_2d(sobelmask_x,img)
+    #mog = np.sqrt( sobel_x**2 + sobel_y**2)
+    
+    
+    # better approach and faster one only for sobel in x and y direction possible
+    mog = convolution_2d(img_double, sobelmask_x)
+    # cs2.imshow sobel_x and sobel_y then comment out also the calsculation of sobel_ and sobel_y 
+    # newimg[x,y] = grad_x comment out 
     
     # Show resulting images
-    cv2.imshow("sobel_x", sobel_x)
-    cv2.imshow("sobel_y", sobel_y)
+    #cv2.imshow("sobel_x", sobel_x)
+    #cv2.imshow("sobel_y", sobel_y)
     cv2.imshow("mog", mog)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
