@@ -70,7 +70,7 @@ def convolution_2d(img, kernel):
 
 if __name__ == "__main__":
     # 1. load image in grayscale
-    img = cv2.imread("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-01/Lenna.png",0)
+    img = cv2.imread("Lenna.png",0)
 
     # 2. convert image to 0-1 image (see im2double)
     img_double = im2double(img)
