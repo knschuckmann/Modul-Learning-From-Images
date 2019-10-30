@@ -100,7 +100,8 @@ while(True):
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     if addapt_ozu_threashhold == True:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)   
-        # frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_OTSU,11,2)
+        # otsu finds the perfect value itself, therefor it is not needed to define adaptive threshold for otsu
+        ret, frame = cv2.threshold(frame, 0, 255, cv2.THRESH_OTSU)
     if addapt_gaussian_threashhold == True:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         # cv2.adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst])
