@@ -95,7 +95,13 @@ if __name__ == "__main__":
     
     
     # better approach and faster one only for sobel in x and y direction possible
-    mog = convolution_2d(img_double, sobelmask_x)
+    grad_x = convolution_2d(img_double, sobelmask_x)
+    grad_y = convolution_2d(img_double, sobelmask_y)
+    # gaus = convolution_2d(img_double, gk)
+    # mog = gaus
+    mog = np.sqrt(grad_x**2 + grad_y**2)
+    
+    
     # cs2.imshow sobel_x and sobel_y then comment out also the calsculation of sobel_ and sobel_y 
     # newimg[x,y] = grad_x comment out 
     
