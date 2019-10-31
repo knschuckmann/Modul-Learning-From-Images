@@ -3,7 +3,7 @@ Konstantin Schuckmann 873637
 Assignment 1 
 
 Question 1 (What are the problems of this clustering algorithm?):
-for bigger K the algorithm gets slower. if the set has big outliers it is difficult to visualize them therefor there is a big problem with large outliers.
+for bigger K the algorithm gets slower. if the set has big outliers it is difficult to visualize them therefor there is a big problem with large outliers. The local minimum problem could lead into a poor result. 
 
 Question 2 (How can I improve the results?):
 The used Loops are quite slow, better is allways converting the matrices into lists and using cython for a faster looping and therefore a faster calculation. Also a usage of value types is recomended, so one allways knows about the set of numbers one dealing with, e.g res = np.array[x.shape, np.uint8].

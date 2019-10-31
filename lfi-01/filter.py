@@ -45,32 +45,28 @@ def convolution_2d(img, kernel):
     :param kernel: convolution matrix - 3x3, or 5x5 matrix
     :return: result of the convolution
     """
-    # TODO write convolution of arbritrary sized convolution here
-    # Hint: you need the kernelsize
 
-    offset = int(kernel.shape[0]/2)
+    k = kernel.shape[0]
+    offset = int(k/2)
+    
     # make an offset and replicate the very last element for offste times
     img = cv2.copyMakeBorder(img, offset,offset,offset,offset, cv2.BORDER_REPLICATE )
     
-    length_img = len(img)
+    high_img, width_img = img.shape
     
     newimg = np.zeros(img.shape)
     
-    for y in range(offset,length_img-offset-1):
-        for x in range(offset,length_img-offset-1):
+    for y in range(offset,high_img-offset-1):
+        for x in range(offset,high_img-offset-1):
             grad_x = sum((kernel * img[y-offset:y+offset+1,x-offset:x+offset+1]).sum(axis = 0))
-            # grad_y = sum((kernel.transpose() * img[y-offset:y+offset+1,x-offset:x+offset+1]).sum(axis = 0))
-            #newimg[y,x] = np.sqrt(grad_x**2 + grad_y**2)
             newimg[y,x] = grad_x
             
-    # YOUR CODE HERE
-
     return newimg
 
 
 if __name__ == "__main__":
     # 1. load image in grayscale
-    img = cv2.imread("Lenna.png",0)
+    img = cv2.imread('Lenna.png',0)
 
     # 2. convert image to 0-1 image (see im2double)
     img_double = im2double(img)
@@ -81,33 +77,17 @@ if __name__ == "__main__":
     sobelmask_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
     gk = make_gaussian(11)
 
-
-    # python works faster with lists
-    # img_double1 = img_double.tolist()
-    # 3 .use image kernels on normalized image
-    #sobel_x = convolution_2d(img_double, sobelmask_x)
-    #sobel_y = convolution_2d(img_double, sobelmask_y)
-    
-    
-    
-    # 4. compute magnitude of gradients
-    #mog = np.sqrt( sobel_x**2 + sobel_y**2)
-    
-    
+    img_gaus = convolution_2d(img_double, gk)
     # better approach and faster one only for sobel in x and y direction possible
-    grad_x = convolution_2d(img_double, sobelmask_x)
-    grad_y = convolution_2d(img_double, sobelmask_y)
-    # gaus = convolution_2d(img_double, gk)
-    # mog = gaus
+    grad_x = convolution_2d(img_gaus, sobelmask_x)
+    grad_y = convolution_2d(img_gaus, sobelmask_y)
+
     mog = np.sqrt(grad_x**2 + grad_y**2)
     
     
-    # cs2.imshow sobel_x and sobel_y then comment out also the calsculation of sobel_ and sobel_y 
-    # newimg[x,y] = grad_x comment out 
-    
     # Show resulting images
-    #cv2.imshow("sobel_x", sobel_x)
-    #cv2.imshow("sobel_y", sobel_y)
+    cv2.imshow("sobel_x", grad_x)
+    cv2.imshow("sobel_y", grad_y)
     cv2.imshow("mog", mog)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

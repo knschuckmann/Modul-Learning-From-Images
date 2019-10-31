@@ -47,24 +47,16 @@ import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
-mode = 0
-hsv_flag = False
-lab_flag = False
-yuv_flag = False
 
-gray_flag = False
-canny = False
+neutral_given, addapt_gaussian_threashhold,addapt_ozu_threashhold,canny,hsv_flag,lab_flag,yuv_flag,gray_flag = [False]*8
 
-addapt_ozu_threashhold = False
-addapt_gaussian_threashhold = False
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
-
     # wait for key and switch to mode
     ch = cv2.waitKey(1) & 0xFF
-    if ch == ord('1'):
-        mode = 1
+    if ch == ord('n'):
+        neutral_given = not neutral_given
     #Convert BGR to HSV
     if ch == ord('h'):
         hsv_flag = not hsv_flag
@@ -86,33 +78,30 @@ while(True):
     if ch == ord('q'):
         break
 
-    if mode == 1:
-        # just example code
-        # your code should implement
+    if neutral_given:
+        # just example code but still 
         frame = cv2.GaussianBlur(frame, (5, 5), 0)
-    if hsv_flag == True:
+    if hsv_flag :
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    if lab_flag == True:
+    if lab_flag:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2LAB)
-    if yuv_flag == True:
+    if yuv_flag:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2YUV)
-    if gray_flag == True:
+    if gray_flag:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    if addapt_ozu_threashhold == True:
+    if addapt_ozu_threashhold:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)   
         # otsu finds the perfect value itself, therefor it is not needed to define adaptive threshold for otsu
         ret, frame = cv2.threshold(frame, 0, 255, cv2.THRESH_OTSU)
-    if addapt_gaussian_threashhold == True:
+    if addapt_gaussian_threashhold:
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         # cv2.adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst])
         frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-    if canny == True:
+    if canny:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         frame = cv2.Canny(frame,100,200)
     # Display the resulting frame
     cv2.imshow('frame', frame)
-
-
 
 
 # When everything done, release the capture
