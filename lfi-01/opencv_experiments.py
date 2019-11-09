@@ -72,7 +72,7 @@ while(True):
     if ch == ord('t'):
         addapt_ozu_threashhold = not addapt_ozu_threashhold
     if ch == ord('g'):
-        addapt_gaussian_threashhold = not addapt_ozu_threashhold
+        addapt_gaussian_threashhold = not addapt_gaussian_threashhold3
     if ch == ord('c'):
         canny = not canny
     if ch == ord('q'):
