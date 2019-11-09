@@ -1,0 +1,15 @@
+a) What are the problems of this clustering algorithm?
+
+The algorithm uses a random assignment for the clusters. This means that you'll get different results for each run. It's also not guaranteed that you'll get the 'best' solution. It could get stuck in a local minimum.
+Since the algorithm calculates the mean, it is sensitive to outliers.
+
+
+b) How can I improve the results?
+
+You can increase k=number of clusters. By doing so, you'll get a smaller total error.
+In addition to that, you can run the application several times and keep the best solution with the smallest total error.
+To deal with the issue of outliers, you could visualize 3 histograms one for each color channel. Shift the values on the very left and right side closer to the middle. You can do this by first detecting them with an appropriate threshold. Secondly, increase/decrease the values of the concerned color channel.
+
+References:
+
+https://towardsdatascience.com/k-means-clustering-from-a-to-z-f6242a314e9a
