@@ -13,6 +13,7 @@ import glob
 import numpy as np
 import os
 from queue import PriorityQueue
+import matplotlib.pyplot as plt
 
 ############################################################
 #
@@ -84,5 +85,38 @@ q = PriorityQueue()
 # 5. output (save and/or display) the query results in the order of smallest distance
 for test in range(4):
     for train in range(4,len(descriptors)):
-        q.put((img[test],distance(descriptors[test][1],descriptors[train][1])))
-        print(q.get())
+        q.put((distance(descriptors[test][1],descriptors[train][1]),[img[test],img[train]]))
+
+while not q.empty():        
+    print(q.get()[0])
+    
+
+for i in range(4):
+
+img = load_image(q.queue[0][1][0])
+img2 = []
+for j in range(len(q.queue)):
+    img2 = load_image(q.queue[j][1][1])
+    
+
+    
+cv2.imshow('as',)np.concatenate((,),axis = 1)
+
+nr = np.arange(80)
+
+fig, axs = plt.subplots(nrows=4, ncols=20, figsize=(9, 6),
+                        subplot_kw={'xticks': [], 'yticks': []})
+
+
+for ax, nr1 in zip(axs.flat, nr):
+    ax.imshow(load_image(q.queue[nr1][1][1]))
+
+plt.tight_layout()
+plt.show()
+
+i1 = load_image(q.get()[1][0])
+i2 = load_image(q.get()[1][1])
+i = np.concatenate((i1,i2), axis = 1)
+cv2.imshow('seds',i)
+
+plt.figure()
