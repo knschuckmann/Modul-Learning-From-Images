@@ -46,8 +46,6 @@ sumG_xx = cv2.filter2D(G_xx,ddepth = -1 ,  kernel = kernel)
 sumG_yy = cv2.filter2D(G_yy,ddepth = -1 ,  kernel = kernel)
 sumG_xy = cv2.filter2D(G_xy,ddepth = -1 ,  kernel = kernel)
 
-M = np.array([[sumG_xx,sumG_xy],[sumG_xy,sumG_yy]])
-
 # Define parameter
 k = 0.04
 threshold = 0.01

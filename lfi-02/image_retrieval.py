@@ -33,13 +33,22 @@ def distance(a, b):
     """
     return np.linalg.norm(a-b)
 
-# not sure if one should mayeb convert the image to gray like in HOG
 def load_image(path):
     """Input: path to image
     return: image
     """
-    img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
+    img = cv2.imread(path,cv2.COLOR_BGR2GRAY)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     return img
+
+def create_keypoints(w, h,gsize=11,keypointSize=11):    
+    col = np.arange(0,w,gsize)
+    row = np.arange(0,h,gsize)
+    
+    keypoints = [cv2.KeyPoint(x,y,keypointSize) for x in col for y in row]
+    
+    return keypoints
+
 
 def create_keypoints_Uniform(w, h, keypointSize):
     """Input width, hight of image and the gridsize
@@ -60,12 +69,14 @@ def create_keypoints_Uniform(w, h, keypointSize):
     
     return keypoints
 
-# only used on my machine for the direction
+# only used on my machine for setting the direction
 os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-02")
 
 # 1. preprocessing and load
-img = glob.glob('./images/db/**/*.jpg', recursive = True)
-images = [load_image(img[i]) for i in range(len(img))]
+train_img = glob.glob('./images/db/train/*/*.jpg')
+test_img = glob.glob('./images/db/test/*.jpg')
+images_train = [load_image(train_img[i]) for i in range(len(train_img))]
+images_test = [load_image(test_img[i]) for i in range(len(test_img))]
 
 # 2. create keypoints on a regular grid (cv2.KeyPoint(r, c, keypointSize), as keypoint size use e.g. 11)
 keyPointSize = 11
@@ -78,11 +89,13 @@ keys = [cv2.KeyPoint(keypoints[i][0], keypoints[i][1], keyPointSize) for i in ra
 #    for each keypoint. this calculation computes one descriptor for each image.
 #    descriptors are devided in keypoints and descriptors
 sift = cv2.xfeatures2d.SIFT_create()
-descriptors = []
+descriptors_test = []
+descriptors_train = []
 # 16 x 16 neighbourhood arround keypoints, each devided into 16 subblocks of the size of 4x4 pixels
 # each of this subblocks has 8 bin orientations
 # result in 128 ( = 16sobbloxks * 8 bins) bin values for each keypoint 
-descriptors = [sift.compute(images[i], keys) for i in range(len(img))]
+descriptors_train = [sift.compute(images_train[i], keys) for i in range(len(train_img))]
+descriptors_test = [sift.compute(images_test[i], keys) for i in range(len(test_img))]
 
 # 4. use one of the query input image to query the 'image database' that
 #    now compress to a single area. Therefore extract the descriptor and
@@ -92,15 +105,17 @@ q = PriorityQueue()
 
 # 5. output (save and/or display) the query results in the order of smallest distance
 # 4 because there are 4 test images so range does 0, 1, 2, 3
-for test in range(4):
+for test in range(len(test_img)):
+    print(test_img[test])
     # for loop for train images
-    for train in range(4,len(descriptors)):
-        q.put((distance(descriptors[test][1],descriptors[train][1]),[img[test],img[train]]))
+    for train in range(len(test_img),len(descriptors_train)):
+        q.put((distance(descriptors_test[test][1],descriptors_train[train][1]),train_img[train]))
 
 # can be used but sure yet if it is right but it displays the que from small to big
 #while not q.empty():        
-#    print(q.get()[0])
-      
+#   print(q.get()[0])
+#   print(q.get()[1])
+#      
 ########################################################
 # here follows a possibility to display the images
 # but it seems not to be right
@@ -112,4 +127,4 @@ nr = np.arange(80)
 fig, axs = plt.subplots(nrows=4, ncols=20, figsize=(9, 6),subplot_kw={'xticks': [], 'yticks': []})
 
 for ax, nr1 in zip(axs.flat, nr):
-    ax.imshow(load_image(q.queue[nr1][1][1]))
+    ax.imshow(load_image(q.queue[nr1][1]))

@@ -141,7 +141,5 @@ keypoints = [cv2.KeyPoint(15, 15, 11)]
 img = glob.glob('./images/hog_test/*.jpg')
 images = [load_image_and_cvt(img[i]) for i in range(len(img))]
 
-
-descriptor = []
 descriptor = [compute_simple_hog(images[i], keypoints, img[i]) for i in range(len(images))]
 
