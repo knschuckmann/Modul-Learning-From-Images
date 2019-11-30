@@ -37,7 +37,8 @@ def load_image(path):
     """Input: path to image
     return: image
     """
-    img = cv2.imread(path,cv2.COLOR_BGR2GRAY)
+    img = cv2.imread(path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     return img
 
@@ -108,13 +109,21 @@ q = PriorityQueue()
 for test in range(len(test_img)):
     print(test_img[test])
     # for loop for train images
-    for train in range(len(test_img),len(descriptors_train)):
+    for train in range(len(descriptors_train)):
         q.put((distance(descriptors_test[test][1],descriptors_train[train][1]),train_img[train]))
 
+
+for train in range(len(descriptors_train)):
+    q.put((distance(descriptors_test[0][1],descriptors_train[train][1]),train_img[train]))
+
 # can be used but sure yet if it is right but it displays the que from small to big
-#while not q.empty():        
-#   print(q.get()[0])
-#   print(q.get()[1])
+que = []
+while not q.empty():        
+    print(q.get()[0])
+
+
+#
+#q.get()[0]
 #      
 ########################################################
 # here follows a possibility to display the images
@@ -122,9 +131,50 @@ for test in range(len(test_img)):
 # possible reasons make first picture apper on left followed by 4 times 2x10 picture like
 # in figure of exercise
 
+
+fig = plt.figure(figsize = (10,6))
+
+for i in range(4):
+    sub = fig.add_subplot(4, 10, 1 + i*10)
+    sub.set_xticks([])
+    sub.set_yticks([])
+    sub.imshow(images_test[i])
+
+sub = fig.add_subplot(6,12,3)
+sub.set_xticks([])
+sub.set_yticks([])
+sub.imshow(images_train[0])
+
+for i in range(1):
+    for j in range(1,21):  
+       sub = fig.add_subplot(6,10,j)
+       sub.set_xticks([])
+       sub.set_yticks([])
+       sub.imshow(load_image(q.queue[j-1][1]))
+
 nr = np.arange(80)
+#
+fig, axs = plt.subplots(nrows=6, ncols=12, figsize=(10, 6),subplot_kw={'xticks': [], 'yticks': []})
 
-fig, axs = plt.subplots(nrows=4, ncols=20, figsize=(9, 6),subplot_kw={'xticks': [], 'yticks': []})
+(axs1,axs2) = axs
 
-for ax, nr1 in zip(axs.flat, nr):
-    ax.imshow(load_image(q.queue[nr1][1]))
+fig.add_subplot(3,6,7)
+axs[0,0].imshow(images_test[0])
+
+for row in range(4):
+    for col in range(14):
+
+#    ax.imshow(load_image(q.queue[nr1][1]))
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
