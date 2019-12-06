@@ -71,7 +71,7 @@ def create_keypoints_Uniform(w, h, keypointSize):
     return keypoints
 
 # only used on my machine for setting the direction
-os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-02")
+# os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-02")
 
 # 1. preprocessing and load
 train_img = glob.glob('./images/db/train/*/*.jpg')
