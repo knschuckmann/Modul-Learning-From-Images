@@ -1,6 +1,24 @@
-# source code inspireed by
-# https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html#model-training-and-validation-code
+"""
+Created on Thu Dez 01 12:38:39 2019
 
+This file trains three difefrent types of Models:
+    * My Own cnn 
+    * LeNet
+    * AlexNet 
+
+Befor Trainig it preprocesses the Data. It is recomended to define the modelName befor 
+running this file, so one can decide which model one wants to train. 
+The Output is a prediction along with the plotted Accuracy and the Crossentropy Loss
+
+Information: 
+    * https://pramodmurthy.com/blog/2019/03/25/tutorial_001_mlp_mnist_pytorch.html
+    * https://discuss.pytorch.org/t/inferring-shape-via-flatten-operator/138/4
+    * https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py
+    * source code inspireed by
+        * https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html#model-training-and-validation-code
+    
+@author: Konstantin Schuckmann
+"""
 from __future__ import print_function
 from __future__ import division
 import torch
@@ -17,24 +35,39 @@ print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
 use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
 
+# Define the Modelname so the Program knows what model to take 
+#modelName = "MyNeuralNetwork"
+modelName = "AlexNet"
+#modelName = "LeNet"
 
 root = './data'
 
-transform = transforms.Compose([
-    # you can add other transformations in this list
-    transforms.ToTensor()
-])
+# AlexNet takes images that are at least 224 x 224 pixel 
+if modelName == "AlexNet":
+    transform = transforms.Compose([    
+        transforms.Resize((224,224), interpolation = 2),
+        transforms.ToTensor()# Biliear interpolation
+    ])
+else:
+    transform = transforms.Compose([
+        # you can add other transformations in this list
+        transforms.ToTensor()    
+    ])
 
+# Load Data from torchvision.datasets    
 train_set = datasets.FashionMNIST(root=root, train=True, transform=transform, download=True)
 test_set = datasets.FashionMNIST(root=root, train=False, transform=transform, download=True)
 
-# hyperparameter
-# TODO Find good hyperparameters
-# batch_size = ...
-# num_epochs = ...
-# learning_rate = ...
-# momentum = ...
+# overall hyperparameter to be changed for different models at the bottom of this file 
+batch_size = 30
+num_epochs = 15
+learning_rate = 0.001
+momentum = 0.9 # to avoid local minima
+
+# Number of Output classes
+num_classes = 10
 
 # Load train and test data
 data_loaders = {}
@@ -47,23 +80,139 @@ data_loaders['test'] = torch.utils.data.DataLoader(
                 batch_size=batch_size,
                 shuffle=False)
 
-# implement your own NNs
-
+# Own NN with following Architecture
+# Conv 3 -> ReLU -> Conv 3 -> ReLU -> Maxpool 2 -> Dropout -> Conv 3 -> ReLU ->
+# Conv 3 -> ReLU -> Maxpool 2 -> Dropout -> flatten -> Linear 500 -> Relu -> Linear 10
 class MyNeuralNetwork(nn.Module):
+    """Inherit from nn.Module, calculates own architecture of NN. Only forwarding, 
+    without any backpropagation. 
+    
+    Return: forwarded result
+    """
     def __init__(self):
-        super(MyNeuralNetwork, self).__init__()
-        # TODO YOUR CODE HERE
+        #super(MyNeuralNetwork, self).__init__() # older way of calling super
+        super().__init__() # inherit constructor of Module
+        self.features = nn.Sequential(
+                # Input of MINST FAshion dataset 28 x 28 x 1 because of grayscale 
+                nn.Conv2d(in_channels = 1,out_channels = 32, kernel_size = 3),
+                nn.ReLU(),
+                # output = input  26 x 26 x 32
+                nn.Conv2d(in_channels = 32, out_channels = 64, kernel_size = 3),
+                nn.ReLU(),
+                # output = input  24 x 24 x 64                
+                nn.MaxPool2d(kernel_size = 2, stride = 2),
+                # output = input  12 x 12 x 64                                
+                nn.Dropout2d(p = 0.25),
+                # output = input  12 x 12 x 64                            
+                nn.Conv2d(in_channels = 64,out_channels = 128, kernel_size = 3),
+                nn.ReLU(),
+                # output = input  10 x 10 x 128                
+                nn.Conv2d(in_channels = 128, out_channels = 192, kernel_size = 3),
+                nn.ReLU(),
+                # output = input  8 x 8 x 192              
+                nn.MaxPool2d(kernel_size = 2, stride = 2),
+                # output = input  4 x 4 x 192     
+                nn.Dropout2d(p = 0.25),
+                )
+        self.classifier = nn.Sequential(
+                nn.Linear(in_features = 4*4*192, out_features = 500),
+                nn.ReLU(),
+                nn.Linear(in_features = 500, out_features = num_classes),
+                # no need of using softmax because Crossentropyloss takes care of that 
+                )
 
     def forward(self, x):
-        # TODO YOUR CODE HERE
-        return x
+        x = self.features(x)
+        x = x.reshape(x.size(0), -1)
+        return self.classifier(x)
 
     def name(self):
         return "MyNeuralNetwork"
+            
+    
+class LeNet(MyNeuralNetwork):
+    """Inherit of Own NN. Architecture is the LeNet 1998 architecture
+    
+    Output: forwarded result.
+    """
+    def __init__(self):
+        super().__init__()
+        self.features = nn.Sequential(
+                nn.Conv2d(in_channels = 1,out_channels = 28, kernel_size = 3, padding = 0),
+                # BathcNorm to normalize the output and fasten the calculation 
+                nn.BatchNorm2d(28),
+                nn.Tanh(),
+                nn.AvgPool2d(kernel_size = 2, stride = 2),
+                nn.Conv2d(in_channels = 28,out_channels = 60, kernel_size = 3, padding = 0),
+                nn.BatchNorm2d(60),
+                nn.Tanh(),
+                nn.AvgPool2d(kernel_size = 2, stride = 2),
+                )
+        self.classifier = nn.Sequential(
+                nn.Linear(in_features = 5*5*60, out_features = 120),
+                nn.Tanh(),
+                nn.Linear(in_features = 120, out_features = 84),
+                nn.Tanh(),
+                nn.Linear(in_features = 84, out_features = num_classes),
+                )
+    def name(self):
+        return "LeNet"
+
+class AlexNet(MyNeuralNetwork):
+    """Inherit of Own NN. Architecture is the AlexNet 2011 architecture. Takes special image size to 
+    forward all calculations through the convolutional layers. 
+    
+    Output: forwarded result.
+    """
+    def __init__(self):
+        super().__init__()
+        self.features = nn.Sequential(
+                nn.Conv2d(in_channels = 1,out_channels = 64, kernel_size = 11, stride = 4, padding = 2),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(kernel_size = 3, stride = 2),
+                nn.Conv2d(in_channels = 64,out_channels = 192, kernel_size = 5, padding = 2),
+                nn.BatchNorm2d(192),
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(kernel_size = 3, stride = 2),
+                nn.Conv2d(in_channels = 192,out_channels = 384, kernel_size = 3, padding = 1),
+                nn.BatchNorm2d(384),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(in_channels = 384,out_channels = 256, kernel_size = 3, padding = 1),
+                nn.BatchNorm2d(256),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(in_channels = 256,out_channels = 256 , kernel_size = 3, padding = 1),
+                nn.BatchNorm2d(256),
+                nn.ReLU(inplace=True),                    
+                nn.MaxPool2d(kernel_size = 3, stride = 2),
+                )
+        self.classifier = nn.Sequential(
+                nn.Dropout(0.25),
+                nn.Linear(256 * 6 * 6, 4096),
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.25),
+                nn.Linear(4096, 4096),
+                nn.ReLU(inplace=True),
+                nn.Linear(4096, num_classes),
+                )
+    
+    def name(self):
+        return "AlexNet"
+
 
 ## training
-model = MyNeuralNetwork()
-
+# Decide which model to take and initialize hyperparameters for different models        
+if modelName == "MyNeuralNetwork":
+    model = MyNeuralNetwork().to(device)
+elif modelName == "AlexNet": # because of teh picture size the Algorithm is more time intensive
+    batch_size = 200
+    num_epochs = 3
+    learning_rate = 0.001
+    model = AlexNet().to(device)
+else:
+    model = LeNet().to(device)
+    
+# Create Optimizer for numerical minima search     
 optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
 criterion = nn.CrossEntropyLoss()
@@ -76,6 +225,7 @@ test_loss_history = []
 
 
 best_acc = 0.0
+# Starting time 
 since = time.time()
 for epoch in range(num_epochs):
     print('Epoch {}/{}'.format(epoch, num_epochs - 1))
@@ -190,4 +340,3 @@ for i in range(6):
   plt.xticks([])
   plt.yticks([])
 plt.show()
-
