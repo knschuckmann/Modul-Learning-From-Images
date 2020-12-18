@@ -137,7 +137,7 @@ keypoints = [cv2.KeyPoint(15, 15, 11)]
 
 # test for all test images
 # preprocessing and load the images
-# os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-02")
+os.chdir("/Users/Kostja/Desktop/Master/Sem_5_(19:20_WiSe)/Learning from Images/Assignments/lfi-02")
 img = glob.glob('./images/hog_test/*.jpg')
 images = [load_image_and_cvt(img[i]) for i in range(len(img))]
 

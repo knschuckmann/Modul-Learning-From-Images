@@ -20,6 +20,7 @@ import os
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
 
+from sklearn import svm
 ############################################################
 #
 #              Simple Image Retrieval
@@ -71,7 +72,7 @@ def create_keypoints_Uniform(w, h, keypointSize):
     return keypoints
 
 # only used on my machine for setting the direction
-# os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-02")
+os.chdir("/Users/Kostja/Desktop/Master/Sem_5_(19:20_WiSe)/Learning from Images/Assignments/lfi-02")
 
 # 1. preprocessing and load
 train_img = glob.glob('./images/db/train/*/*.jpg')
@@ -165,14 +166,6 @@ for row in range(4):
     for col in range(14):
 
 #    ax.imshow(load_image(q.queue[nr1][1]))
-
-    
-    
-    
-    
-    
-    
-    
     
     
     

@@ -84,7 +84,7 @@ def labelEnc(label, imagePath):
 
     
 # Set the absolute path to work on the right folder
-# os.chdir("/Users/Kostja/Desktop/Master/Sem 5 (19:20 WiSe)/Learning from Images/Assignments/lfi-03/")
+#os.chdir("/Users/Kostja/Desktop/Master/Sem_5_(19:20_WiSe)/Learning from Images/Assignments/lfi-03/")
 
 imgPathsTrain = glob.glob("./images/db/train/*/*")
 groups = find_index_Img(imgPathsTrain, 18)
